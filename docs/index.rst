@@ -12,26 +12,26 @@ For an end-to-end transformer library built on JAX, see MaxText_.
    :padding: 0
    :gutter: 0
 
-   .. grid-item-card:: Familiar API
+   .. grid-item-card:: 익숙한 API
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      JAX provides a familiar NumPy-style API for ease of adoption by researchers and engineers.
+      JAX는 연구자와 엔지니어들이 쉽게 적응할 수 있도록 NumPy 스타일의 익숙한 API를 제공합니다.
 
-   .. grid-item-card:: Transformations
+   .. grid-item-card:: 변환
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      JAX includes composable function transformations for compilation, batching, automatic differentiation, and parallelization.
+      JAX는 컴파일, 배치 처리, 자동 미분 및 병렬화를 위한 조립 가능한 함수 변환 기능이 포함되어 있습니다.
 
-   .. grid-item-card:: Run Anywhere
+   .. grid-item-card:: 어디서나 실행
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      The same code executes on multiple backends, including CPU, GPU, & TPU
+      동일한 코드가 CPU, GPU, 및 TPU를 포함한 여러 백엔드에서 실행됩니다.
 
 .. grid:: 3
 
