@@ -3,9 +3,9 @@ JAX: 고성능 배열 컴퓨팅
 
 JAX는 고성능 수치 계산을 위해 Autograd_\ 와 XLA_\ 를 결합한 것입니다.
 
-If you're looking to train neural networks, use Flax_ and start with its documentation.
-Some associated tools are Optax_ and Orbax_.
-For an end-to-end transformer library built on JAX, see MaxText_.
+신경망을 훈련시키고자 한다면, Flax_\ 를 사용하고 그 문서부터 시작하세요.
+관련 도구로는 Optax_\ 와 Orbax_\ 가 있습니다.
+JAX 위에 빌드된 엔드-투-엔드 트랜스포머 라이브러리를 보려면, MaxText_\ 를 확인하세요.
 
 .. grid:: 3
    :margin: 0
