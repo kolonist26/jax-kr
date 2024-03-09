@@ -1,7 +1,7 @@
 JAX: 고성능 배열 컴퓨팅
 =====================================
 
-JAX is Autograd_ and XLA_, brought together for high-performance numerical computing.
+JAX는 고성능 수치 계산을 위해 `Autograd`와 `XLA`를 결합한 것입니다.
 
 If you're looking to train neural networks, use Flax_ and start with its documentation.
 Some associated tools are Optax_ and Orbax_.
@@ -47,7 +47,7 @@ For an end-to-end transformer library built on JAX, see MaxText_.
       :link-type: ref
       :class-card: user-guides
 
-    .. grid-item-card:: :material-regular:`laptop_chromebook;2em` Developer Docs
+    .. grid-item-card:: :material-regular:`laptop_chromebook;2em` 개발자 문서
       :columns: 12 6 6 4
       :link: contributor-guide
       :link-type: ref
@@ -57,7 +57,7 @@ For an end-to-end transformer library built on JAX, see MaxText_.
 .. toctree::
    :hidden:
    :maxdepth: 1
-   :caption: Getting Started
+   :caption: 시작하기
 
    installation
    notebooks/quickstart
@@ -75,7 +75,7 @@ For an end-to-end transformer library built on JAX, see MaxText_.
 .. toctree::
    :hidden:
    :maxdepth: 2
-   :caption: Further Resources
+   :caption: 더 많은 자료
 
    user_guides
    advanced_guide
