@@ -240,7 +240,7 @@ def apply_matrix(v):
 def naively_batched_apply_matrix(v_batched):
   return jnp.stack([apply_matrix(v) for v in v_batched])
 
-print('단순 배치')
+print('Naively batched')
 %timeit naively_batched_apply_matrix(batched_x).block_until_ready()
 ```
 
@@ -256,7 +256,7 @@ print('단순 배치')
 def batched_apply_matrix(v_batched):
   return jnp.dot(v_batched, mat.T)
 
-print('수동 배치')
+print('Manually batched')
 %timeit batched_apply_matrix(batched_x).block_until_ready()
 ```
 
@@ -272,7 +272,7 @@ print('수동 배치')
 def vmap_batched_apply_matrix(v_batched):
   return vmap(apply_matrix)(v_batched)
 
-print('vmap을 사용한 자동 벡터화')
+print('Auto-vectorized with vmap')
 %timeit vmap_batched_apply_matrix(batched_x).block_until_ready()
 ```
 
