@@ -1,53 +1,53 @@
-JAX: 고성능 배열 컴퓨팅
+JAX: High-Performance Array Computing
 =====================================
 
-JAX는 고성능 숫자 계산을 위해 함께 모아진 Autograd_\ 과 XLA_\ 입니다.
+JAX is Autograd_ and XLA_, brought together for high-performance numerical computing.
 
-만약 신경망을 훈련시키려고 한다면, Flax_\ 를 사용하고 그 문서부터 시작하세요.
-관련 도구로는 Optax_\ 와 Orbax_\ 가 있습니다.
-JAX를 기반으로 한 엔드-투-엔드 트랜스포머 라이브러리를 보려면 MaxText_\ 를 확인하세요.
+If you're looking to train neural networks, use Flax_ and start with its documentation.
+Some associated tools are Optax_ and Orbax_.
+For an end-to-end transformer library built on JAX, see MaxText_.
 
 .. grid:: 3
    :margin: 0
    :padding: 0
    :gutter: 0
 
-   .. grid-item-card:: 익숙한 API
+   .. grid-item-card:: Familiar API
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      JAX는 연구자와 엔지니어들이 쉽게 적응할 수 있도록 NumPy-스타일의 익숙한 API를 제공합니다.
+      JAX provides a familiar NumPy-style API for ease of adoption by researchers and engineers.
 
-   .. grid-item-card:: 변환
+   .. grid-item-card:: Transformations
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      JAX에는 컴파일, 배치 처리, 자동 미분 및 병렬화를 위한 조립 가능한 함수 변환 기능이 포함되어 있습니다.
+      JAX includes composable function transformations for compilation, batching, automatic differentiation, and parallelization.
 
-   .. grid-item-card:: 어디서든 실행
+   .. grid-item-card:: Run Anywhere
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
 
-      동일한 코드는 CPU, GPU 및 TPU를 포함한 여러 백엔드에서 실행됩니다.
+      The same code executes on multiple backends, including CPU, GPU, & TPU
 
 .. grid:: 3
 
-    .. grid-item-card:: :material-regular:`rocket_launch;2em` 시작하기
+    .. grid-item-card:: :material-regular:`rocket_launch;2em` Getting Started
       :columns: 12 6 6 4
       :link: beginner-guide
       :link-type: ref
       :class-card: getting-started
 
-    .. grid-item-card:: :material-regular:`library_books;2em` 사용자 가이드
+    .. grid-item-card:: :material-regular:`library_books;2em` User Guides
       :columns: 12 6 6 4
       :link: user-guides
       :link-type: ref
       :class-card: user-guides
 
-    .. grid-item-card:: :material-regular:`laptop_chromebook;2em` 개발자 문서
+    .. grid-item-card:: :material-regular:`laptop_chromebook;2em` Developer Docs
       :columns: 12 6 6 4
       :link: contributor-guide
       :link-type: ref
@@ -57,7 +57,7 @@ JAX를 기반으로 한 엔드-투-엔드 트랜스포머 라이브러리를 보
 .. toctree::
    :hidden:
    :maxdepth: 1
-   :caption: 시작하기
+   :caption: Getting Started
 
    installation
    notebooks/quickstart
@@ -75,7 +75,7 @@ JAX를 기반으로 한 엔드-투-엔드 트랜스포머 라이브러리를 보
 .. toctree::
    :hidden:
    :maxdepth: 2
-   :caption: 추가 자료
+   :caption: Further Resources
 
    user_guides
    advanced_guide
