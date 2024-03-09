@@ -1,4 +1,4 @@
-JAX: High-Performance Array Computing
+JAX: 고성능 배열 컴퓨팅
 =====================================
 
 JAX is Autograd_ and XLA_, brought together for high-performance numerical computing.
