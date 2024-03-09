@@ -14,28 +14,19 @@ kernelspec:
 
 +++ {"id": "xtWX4x9DCF5_"}
 
-# JAX Quickstart
+# JAX 빠른 시작
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/google/jax/blob/main/docs/notebooks/quickstart.ipynb) [![Open in Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://github.com/google/jax/blob/main/docs/notebooks/quickstart.ipynb)
 
-**JAX is NumPy on the CPU, GPU, and TPU, with great automatic differentiation for high-performance machine learning research.**
+**JAX는 CPU, GPU, 및 TPU에서 작동하는 NumPy이며, 고성능 머신러닝 연구를 위한 훌륭한 자동 미분 기능을 제공합니다.**
 
-With its updated version of [Autograd](https://github.com/hips/autograd), JAX
-can automatically differentiate native Python and NumPy code. It can
-differentiate through a large subset of Python’s features, including loops, ifs,
-recursion, and closures, and it can even take derivatives of derivatives of
-derivatives. It supports reverse-mode as well as forward-mode differentiation, and the two can be composed arbitrarily
-to any order.
+[Autograd](https://github.com/hips/autograd)의 업데이트된 버전을 통해 JAX는 네이티브 파이썬 및 NumPy 코드를 자동으로 미분할 수 있습니다.
+이는 파이썬의 다양한 기능, 예를 들어 반복문, 조건문, 재귀, 클로저 등을 통한 미분이 가능하며, 미분의 미분, 그 미분의 미분까지도 계산할 수 있습니다.
+역방향-모드 뿐만 아니라 순방향-모드 미분을 지원하며, 두 방식은 임의의 순서로 자유롭게 조합될 수 있습니다.
 
-What’s new is that JAX uses
-[XLA](https://www.tensorflow.org/xla)
-to compile and run your NumPy code on accelerators, like GPUs and TPUs.
-Compilation happens under the hood by default, with library calls getting
-just-in-time compiled and executed. But JAX even lets you just-in-time compile
-your own Python functions into XLA-optimized kernels using a one-function API.
-Compilation and automatic differentiation can be composed arbitrarily, so you
-can express sophisticated algorithms and get maximal performance without having
-to leave Python.
+새로운 점은 JAX가 [XLA](https://www.tensorflow.org/xla)를 사용하여 NumPy 코드를 GPU와 TPU와 같은 가속기에서 컴파일하고 실행한다는 것입니다.
+컴파일은 기본적으로 백그라운드에서 일어나며, 라이브러리 호출은 즉석에서 컴파일되어 실행됩니다. 하지만 JAX는 당신이 자신의 파이썬 함수를 XLA 최적화 커널로 즉석에서 컴파일할 수 있게 하는 단일 함수 API도 제공합니다.
+컴파일과 자동 미분은 임의로 조합될 수 있어, 복잡한 알고리즘을 표현하고 파이썬을 떠나지 않고도 최대의 성능을 얻을 수 있습니다.
 
 ```{code-cell} ipython3
 :id: SY8mDvEvCGqk
@@ -47,13 +38,13 @@ from jax import random
 
 +++ {"id": "FQ89jHCYfhpg"}
 
-## Multiplying Matrices
+## 행렬 곱하기
 
 +++ {"id": "Xpy1dSgNqCP4"}
 
-We'll be generating random data in the following examples. One big difference between NumPy and JAX is how you generate random numbers. For more details, see [Common Gotchas in JAX].
+다음 예시에서는 무작위 데이터를 생성할 것입니다. NumPy와 JAX 사이의 큰 차이점 중 하나는 난수를 생성하는 방법입니다. 자세한 내용은 [JAX에서 흔히 발생하는 문제]를 참고하세요.
 
-[Common Gotchas in JAX]: https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#%F0%9F%94%AA-Random-Numbers
+[JAX에서 흔히 발생하는 문제]: https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#%F0%9F%94%AA-Random-Numbers
 
 ```{code-cell} ipython3
 :id: u0nseKZNqOoH
@@ -66,7 +57,7 @@ print(x)
 
 +++ {"id": "hDJF0UPKnuqB"}
 
-Let's dive right in and multiply two big matrices.
+바로 들어가서 두 개의 큰 행렬을 곱해보겠습니다.
 
 ```{code-cell} ipython3
 :id: eXn8GUl6CG5N
@@ -74,14 +65,14 @@ Let's dive right in and multiply two big matrices.
 
 size = 3000
 x = random.normal(key, (size, size), dtype=jnp.float32)
-%timeit jnp.dot(x, x.T).block_until_ready()  # runs on the GPU
+%timeit jnp.dot(x, x.T).block_until_ready()  # GPU에서 실행
 ```
 
 +++ {"id": "0AlN7EbonyaR"}
 
-We added that `block_until_ready` because JAX uses asynchronous execution by default (see {ref}`async-dispatch`).
+JAX는 기본적으로 비동기 실행을 사용하기 때문에 ({ref}`async-dispatch`를 참고) `block_until_ready`를 추가했습니다.
 
-JAX NumPy functions work on regular NumPy arrays.
+JAX NumPy 함수는 일반 NumPy 배열에서 작동합니다.
 
 ```{code-cell} ipython3
 :id: ZPl0MuwYrM7t
@@ -94,7 +85,7 @@ x = np.random.normal(size=(size, size)).astype(np.float32)
 
 +++ {"id": "_SrcB2IurUuE"}
 
-That's slower because it has to transfer data to the GPU every time. You can ensure that an NDArray is backed by device memory using {func}`~jax.device_put`.
+그것은 매번 데이터를 GPU로 전송해야 하기 때문에 더 느립니다. {func}`~jax.device_put`을 사용하여 NDArray가 장치 메모리에 의해 지원되는지 확인할 수 있습니다.
 
 ```{code-cell} ipython3
 :id: Jj7M7zyRskF0
@@ -109,30 +100,31 @@ x = device_put(x)
 
 +++ {"id": "clO9djnen8qi"}
 
-The output of {func}`~jax.device_put` still acts like an NDArray, but it only copies values back to the CPU when they're needed for printing, plotting, saving to disk, branching, etc. The behavior of {func}`~jax.device_put` is equivalent to the function `jit(lambda x: x)`, but it's faster.
+{func}`~jax.device_put`의 출력은 여전히 NDArray처럼 동작하지만, 출력, 그래프 그리기, 디스크에 저장하기, 분기 등 필요할 때만 CPU로 값이 복사됩니다. {func}`~jax.device_put`의 동작은 `jit(lambda x: x)` 함수와 동일하지만, 더 빠릅니다.
 
 +++ {"id": "ghkfKNQttDpg"}
 
-If you have a GPU (or TPU!) these calls run on the accelerator and have the potential to be much faster than on CPU.
-See {ref}`faq-jax-vs-numpy` for more comparison of performance characteristics of NumPy and JAX
+GPU(또는 TPU!)가 있다면, 이러한 호출은 가속기에서 실행되며 CPU보다 훨씬 빠를 수 있는 잠재력을 가지고 있습니다.
+
+NumPy와 JAX의 성능 특성 비교에 대해서는 {ref}`faq-jax-vs-numpy`를 참고하세요.
 
 +++ {"id": "iOzp0P_GoJhb"}
 
-JAX is much more than just a GPU-backed NumPy. It also comes with a few program transformations that are useful when writing numerical code. For now, there are three main ones:
+JAX는 GPU-backed NumPy보다 훨씬 더 많은 것을 제공합니다. 수치 코드를 작성할 때 유용한 몇 가지 프로그램 변환도 함께 제공됩니다. 현재, 주요한 것은 세 가지입니다:
 
- - {func}`~jax.jit`, for speeding up your code
- - {func}`~jax.grad`, for taking derivatives
- - {func}`~jax.vmap`, for automatic vectorization or batching.
+{func}`~jax.jit`, 코드 속도 향상을 위해
+{func}`~jax.grad`, 미분을 위해
+{func}`~jax.vmap`, 자동 벡터화 또는 배치를 위해.
 
-Let's go over these, one-by-one. We'll also end up composing these in interesting ways.
+이것들을 하나씩 살펴보겠습니다. 우리는 이것들을 흥미로운 방법으로 조합하는 것으로 마무리할 것입니다.
 
 +++ {"id": "bTTrTbWvgLUK"}
 
-## Using {func}`~jax.jit` to speed up functions
+## {func}`~jax.jit`을 사용하여 함수 속도 향상
 
 +++ {"id": "YrqE32mvE3b7"}
 
-JAX runs transparently on the GPU or TPU (falling back to CPU if you don't have one). However, in the above example, JAX is dispatching kernels to the GPU one operation at a time. If we have a sequence of operations, we can use the `@jit` decorator to compile multiple operations together using [XLA](https://www.tensorflow.org/xla). Let's try that.
+JAX는 GPU 또는 TPU에서 투명하게 실행됩니다 (만약 가지고 있지 않다면 CPU로 대체됩니다). 그러나 위의 예에서, JAX는 한 번에 하나의 연산을 GPU에 전달하고 있습니다. 연산자들의 시퀀스가 있다면, [XLA](https://www.tensorflow.org/xla)를 사용하여 여러 연산을 함께 컴파일하기 위해 `@jit` 데코레이터를 사용할 수 있습니다. 해봅시다.
 
 ```{code-cell} ipython3
 :id: qLGdCtFKFLOR
@@ -147,7 +139,7 @@ x = random.normal(key, (1000000,))
 
 +++ {"id": "a_V8SruVHrD_"}
 
-We can speed it up with `@jit`, which will jit-compile the first time `selu` is called and will be cached thereafter.
+`@jit`을 사용하면 속도를 높일 수 있으며, `selu`가 처음 호출될 때 jit-컴파일 되고 이후에는 캐시될 것입니다.
 
 ```{code-cell} ipython3
 :id: fh4w_3NpFYTp
@@ -159,9 +151,9 @@ selu_jit = jit(selu)
 
 +++ {"id": "HxpBc4WmfsEU"}
 
-## Taking derivatives with {func}`~jax.grad`
+## {func}`~jax.grad`를 사용한 미분 계산
 
-In addition to evaluating numerical functions, we also want to transform them. One transformation is [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation). In JAX, just like in [Autograd](https://github.com/HIPS/autograd), you can compute gradients with the {func}`~jax.grad` function.
+수치 함수를 평가하는 것 외에도, 우리는 그것들을 변환하고 싶습니다. 한 가지 변환은 [자동 미분](https://en.wikipedia.org/wiki/Automatic_differentiation)입니다. JAX에서는 [Autograd](https://github.com/HIPS/autograd)에서와 마찬가지로, {func}`~jax.grad` 함수를 사용하여 기울기를 계산할 수 있습니다.
 
 ```{code-cell} ipython3
 :id: IMAgNJaMJwPD
@@ -177,7 +169,7 @@ print(derivative_fn(x_small))
 
 +++ {"id": "PtNs881Ohioc"}
 
-Let's verify with finite differences that our result is correct.
+유한 차분을 사용하여 우리의 결과가 정확한지 검증해봅시다.
 
 ```{code-cell} ipython3
 :id: JXI7_OZuKZVO
@@ -194,7 +186,7 @@ print(first_finite_differences(sum_logistic, x_small))
 
 +++ {"id": "Q2CUZjOWNZ-3"}
 
-Taking derivatives is as easy as calling {func}`~jax.grad`. {func}`~jax.grad` and {func}`~jax.jit` compose and can be mixed arbitrarily. In the above example we jitted `sum_logistic` and then took its derivative. We can go further:
+미분을 하는 것은 {func}`~jax.grad`를 호출하는 것만큼 쉽습니다. {func}`~jax.grad`와 {func}`~jax.jit`는 조합되어 임의로 혼합될 수 있습니다. 위의 예에서 우리는 `sum_logistic`을 jit한 다음 그 미분을 취했습니다. 우리는 더 나아갈 수 있습니다:
 
 ```{code-cell} ipython3
 :id: TO4g8ny-OEi4
@@ -205,7 +197,7 @@ print(grad(jit(grad(jit(grad(sum_logistic)))))(1.0))
 
 +++ {"id": "yCJ5feKvhnBJ"}
 
-For more advanced autodiff, you can use {func}`jax.vjp` for reverse-mode vector-Jacobian products and {func}`jax.jvp` for forward-mode Jacobian-vector products. The two can be composed arbitrarily with one another, and with other JAX transformations. Here's one way to compose them to make a function that efficiently computes full Hessian matrices:
+보다 고급 자동 미분을 위해서, 역방향-모드 벡터-야코비안 곱셈을 위한 {func}`jax.vjp`와 순방향-모드 야코비안-벡터 곱셈을 위한 {func}`jax.jvp`를 사용할 수 있습니다. 두 가지는 서로와 다른 JAX 변환과 임의로 조합될 수 있습니다. 이들을 조합하여 헤세 행렬을 효율적으로 계산하는 함수를 만들 수 있는 한 가지 방법이 있습니다:
 
 ```{code-cell} ipython3
 :id: Z-JxbiNyhxEW
@@ -217,15 +209,15 @@ def hessian(fun):
 
 +++ {"id": "TI4nPsGafxbL"}
 
-## Auto-vectorization with {func}`~jax.vmap`
+## {func}`~jax.vmap`을 사용한 자동 벡터화
 
 +++ {"id": "PcxkONy5aius"}
 
-JAX has one more transformation in its API that you might find useful: {func}`~jax.vmap`, the vectorizing map. It has the familiar semantics of mapping a function along array axes, but instead of keeping the loop on the outside, it pushes the loop down into a function’s primitive operations for better performance. When composed with {func}`~jax.jit`, it can be just as fast as adding the batch dimensions by hand.
+JAX에는 API에서 유용하게 사용할 수 있는 또 다른 변환이 있습니다: {func}`~jax.vmap`, 맵 벡터화입니다. 함수를 배열 축을 따라 매핑하는 친숙한 의미를 가지고 있지만, 반복문을 외부에 유지하는 대신 함수의 원시 연산으로 반복문을 내리는 방식으로, 성능을 향상시킵니다. {func}`~jax.jit`와 함께 사용하면, 수동으로 배치 차원을 추가하는 것만큼 빠를 수 있습니다.
 
 +++ {"id": "TPiX4y-bWLFS"}
 
-We're going to work with a simple example, and promote matrix-vector products into matrix-matrix products using {func}`~jax.vmap`. Although this is easy to do by hand in this specific case, the same technique can apply to more complicated functions.
+우리는 간단한 예제로 작업하고, {func}`~jax.vmap`를 사용하여 행렬-벡터 곱을 행렬-행렬 곱으로 확장시킬 것입니다. 이 경우에는 수동으로 하기 쉽지만, 같은 기술을 더 복잡한 함수에 적용할 수 있습니다.
 
 ```{code-cell} ipython3
 :id: 8w0Gpsn8WYYj
@@ -239,7 +231,7 @@ def apply_matrix(v):
 
 +++ {"id": "0zWsc0RisQWx"}
 
-Given a function such as `apply_matrix`, we can loop over a batch dimension in Python, but usually the performance of doing so is poor.
+`apply_matrix`와 같은 함수가 주어졌을 때, 파이썬에서 배치 차원을 따라 반복할 수 있지만, 보통 그런 작업은 성능이 좋지 않습니다.
 
 ```{code-cell} ipython3
 :id: KWVc9BsZv0Ki
@@ -248,13 +240,13 @@ Given a function such as `apply_matrix`, we can loop over a batch dimension in P
 def naively_batched_apply_matrix(v_batched):
   return jnp.stack([apply_matrix(v) for v in v_batched])
 
-print('Naively batched')
+print('단순 배치')
 %timeit naively_batched_apply_matrix(batched_x).block_until_ready()
 ```
 
 +++ {"id": "qHfKaLE9stbA"}
 
-We know how to batch this operation manually. In this case, `jnp.dot` handles extra batch dimensions transparently.
+이 작업을 수동으로 배치하는 방법을 알고 있습니다. 이 경우, `jnp.dot`은 추가 배치 차원을 투명하게 처리합니다.
 
 ```{code-cell} ipython3
 :id: ipei6l8nvrzH
@@ -264,13 +256,13 @@ We know how to batch this operation manually. In this case, `jnp.dot` handles ex
 def batched_apply_matrix(v_batched):
   return jnp.dot(v_batched, mat.T)
 
-print('Manually batched')
+print('수동 배치')
 %timeit batched_apply_matrix(batched_x).block_until_ready()
 ```
 
 +++ {"id": "1eF8Nhb-szAb"}
 
-However, suppose we had a more complicated function without batching support. We can use {func}`~jax.vmap` to add batching support automatically.
+그러나, 배치 지원이 없는 더 복잡한 함수가 있다고 가정해 봅시다. 우리는 {func}`~jax.vmap`을 사용하여 자동으로 배치 지원을 추가할 수 있습니다.
 
 ```{code-cell} ipython3
 :id: 67Oeknf5vuCl
@@ -280,14 +272,14 @@ However, suppose we had a more complicated function without batching support. We
 def vmap_batched_apply_matrix(v_batched):
   return vmap(apply_matrix)(v_batched)
 
-print('Auto-vectorized with vmap')
+print('vmap을 사용한 자동 벡터화')
 %timeit vmap_batched_apply_matrix(batched_x).block_until_ready()
 ```
 
 +++ {"id": "pYVl3Z2nbZhO"}
 
-Of course, {func}`~jax.vmap` can be arbitrarily composed with {func}`~jax.jit`, {func}`~jax.grad`, and any other JAX transformation.
+물론, {func}`~jax.vmap`은 {func}`~jax.jit`, {func}`~jax.grad`, 그리고 다른 JAX 변환과 임의로 조합될 수 있습니다.
 
 +++ {"id": "WwNnjaI4th_8"}
 
-This is just a taste of what JAX can do. We're really excited to see what you do with it!
+이것은 JAX가 할 수 있는 것의 일부일 뿐입니다. 여러분이 이를 사용하여 무엇을 할지 정말 기대됩니다!
