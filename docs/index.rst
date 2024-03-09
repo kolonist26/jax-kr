@@ -26,7 +26,7 @@ For an end-to-end transformer library built on JAX, see MaxText_.
 
       JAX는 컴파일, 배치 처리, 자동 미분 및 병렬화를 위한 조립 가능한 함수 변환 기능이 포함되어 있습니다.
 
-   .. grid-item-card:: 어디서나 실행
+   .. grid-item-card:: 어디서든 실행
       :columns: 12 6 6 4
       :class-card: sd-border-0
       :shadow: None
@@ -35,13 +35,13 @@ For an end-to-end transformer library built on JAX, see MaxText_.
 
 .. grid:: 3
 
-    .. grid-item-card:: :material-regular:`rocket_launch;2em` Getting Started
+    .. grid-item-card:: :material-regular:`rocket_launch;2em` 시작하기
       :columns: 12 6 6 4
       :link: beginner-guide
       :link-type: ref
       :class-card: getting-started
 
-    .. grid-item-card:: :material-regular:`library_books;2em` User Guides
+    .. grid-item-card:: :material-regular:`library_books;2em` 사용자 가이드
       :columns: 12 6 6 4
       :link: user-guides
       :link-type: ref
