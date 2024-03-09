@@ -1,7 +1,7 @@
 JAX: 고성능 배열 컴퓨팅
 =====================================
 
-JAX는 고성능 수치 계산을 위해 `Autograd`와 `XLA`를 결합한 것입니다.
+JAX는 고성능 수치 계산을 위해 `Autograd`_와 `XLA`_를 결합한 것입니다.
 
 If you're looking to train neural networks, use Flax_ and start with its documentation.
 Some associated tools are Optax_ and Orbax_.
