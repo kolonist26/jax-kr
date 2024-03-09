@@ -53,7 +53,7 @@ Kepler 시리즈 GPU는 NVIDIA가 소프트웨어에서 Kepler GPU 지원을 중
 NVIDIA에서 제공하는 가장 최신 드라이버를 설치하는 것을 권장하지만, CUDA 12의 경우 드라이버 버전이 >= 525.60.13,
 CUDA 11의 경우 Linux에서 >= 450.80.02 이어야 합니다. NVIDIA 드라이버를 쉽게 업데이트할 수 없는 클러스터 등에서 더 새로운 CUDA 툴킷을 이전 드라이버와 함께 사용해야 하는 경우, 이 목적으로 NVIDIA가 제공하는 [CUDA forward compatibility packages](https://docs.nvidia.com/deploy/cuda-compatibility/)를 사용할 수 있습니다.
 
-### pip 설치: GPU (CUDA, pip를 통한 설치, 더 쉽게)
+### pip 설치: GPU (CUDA, pip를 통한 설치, 더 쉬움)
 
 NVIDIA GPU 지원과 함께 JAX를 설치하는 두 가지 방법이 있습니다: pip 휠에서 설치한 CUDA와 CUDNN을 사용하는 방법과,
 자체 설치한 CUDA/CUDNN을 사용하는 방법입니다. pip 휠을 사용하여 CUDA와 CUDNN을 설치하는 것이 훨씬 쉽기 때문에,
@@ -220,7 +220,7 @@ JAX에 의해 사용되는 CUDA의 릴리스를 오버라이드하고 싶거나,
 
 ## 이전 jaxlib 휠 설치하기
 
-Python 패키지 인덱스의 저장 공간 제한으로 인해, 우리는 주기적으로 http://pypi.org/project/jax 에서 이전 jaxlib 휠을 제거합니다.
+Python 패키지 인덱스의 저장 공간 제한으로 인해, 우리는 주기적으로 http://pypi.org/project/jax에서 이전 jaxlib 휠을 제거합니다.
 이들은 여기 있는 URL을 통해 직접 설치할 수 있습니다; 예를 들어:
 ```
 # 휠 아카이브를 통해 CPU용 jaxlib 설치
