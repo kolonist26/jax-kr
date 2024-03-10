@@ -1,4 +1,4 @@
-JAX Frequently Asked Questions (FAQ)
+JAX 자주 묻는 질문 (FAQ)
 ====================================
 
 .. comment RST primer for Sphinx: https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html
@@ -6,15 +6,14 @@ JAX Frequently Asked Questions (FAQ)
 
 .. _JAX - The Sharp Bits: https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html
 
-We are collecting here answers to frequently asked questions.
-Contributions welcome!
+여기에 자주 묻는 질문들에 대한 답변을 수집하고 있습니다.
+기여는 언제든 환영입니다!
 
-``jit`` changes the behavior of my function
+``jit`` 은 함수의 동작을 변경합니다
 --------------------------------------------
 
-If you have a Python function that changes behavior after using :func:`jax.jit`, perhaps
-your function uses global state, or has side-effects. In the following code, the
-``impure_func`` uses the global ``y`` and has a side-effect due to ``print``::
+만약 :func:`jax.jit` 을 쓰고나서 파이썬 함수의 동작에 변화가 있다면, 아마도 그 함수는 전역 변수를 사용하거나 부수 효과를 가지고 있을 것입니다.
+다음 코드에서, ``impure_func`` 은 전역 변수 ``y`` 를 사용하고 ``print`` 라는 부수 효과를 가지고 있습니다.::
 
     y = 0
 
@@ -26,7 +25,7 @@ your function uses global state, or has side-effects. In the following code, the
     for y in range(3):
       print("Result:", impure_func(y))
 
-Without ``jit`` the output is::
+``jit`` 이 없을 때의 출력::
 
     Inside: 0
     Result: 0
@@ -35,28 +34,27 @@ Without ``jit`` the output is::
     Inside: 2
     Result: 4
 
-and with ``jit`` it is::
+``jit`` 이 있을 때의 출력::
 
     Inside: 0
     Result: 0
     Result: 1
     Result: 2
 
-For :func:`jax.jit`, the function is executed once using the Python interpreter, at which time the
-``Inside`` printing happens, and the first value of ``y`` is observed. Then, the function
-is compiled and cached, and executed multiple times with different values of ``x``, but
-with the same first value of ``y``.
+:func:`jax.jit` 은, 처음에 파이썬 인터프리터를 사용하여 한 번 실행되며,
+이때 ``Inside`` 출력이 발생하고, ``y`` 의 첫 번째 값이 관찰됩니다.
+그 후, 함수는 컴파일되어 캐시되고, 다른 ``x`` 값들로 여러 번 실행되지만, ``y`` 는 첫 번째 값과 동일한 값으로 실행됩니다.
 
-Additional reading:
+추가 읽을 자료:
 
   * `JAX - The Sharp Bits`_
 
 .. _faq-jit-numerics:
 
-``jit`` changes the exact numerics of outputs
+``jit`` 는 출력의 정확한 숫자를 변경합니다
 ---------------------------------------------
-Sometimes users are surprised by the fact that wrapping a function with :func:`jit`
-can change the function's outputs. For example:
+사용자는 때때로 함수를 :func:`jit` 으로 래핑하는 것이 함수의 출력을 변경할 수 있다는 사실에 놀랍니다.
+예를 들어:
 
 >>> from jax import jit
 >>> import jax.numpy as jnp
@@ -69,18 +67,15 @@ can change the function's outputs. For example:
 >>> print(jit(f)(x))
 0.5723649
 
-This slight difference in output comes from optimizations within the XLA compiler:
-during compilation, XLA will sometimes rearrange or elide certain operations to make
-the overall computation more efficient.
+이러한 약간의 출력 차이는 XLA 컴파일러 내부의 최적화에서 비롯됩니다:
+컴파일 중에, XLA는 전반적인 계산을 더 효율적으로 만들기 위해 특정 연산을 재배열하거나 생략하기도 합니다.
 
-In this case, XLA utilizes the properties of the logarithm to replace ``log(sqrt(x))``
-with ``0.5 * log(x)``, which is a mathematically identical expression that can be
-computed more efficiently than the original. The difference in output comes from
-the fact that floating point arithmetic is only a close approximation of real math,
-so different ways of computing the same expression may have subtly different results.
+이 경우, XLA는 로그의 성질을 활용하여 ``log(sqrt(x))`` 를 수학적으로 동일한 표현인 ``0.5 * log(x)`` 로 대체하는데,
+이는 원래보다 더 효율적으로 계산될 수 있습니다. 출력의 차이는 부동 소수점 연산이 실제 수학의 근사치에 불과하기 때문에,
+같은 표현을 계산하는 서로 다른 방식이 미묘하게 다른 결과를 낼 수 있다는 사실에서 비롯됩니다.
 
-Other times, XLA's optimizations may lead to even more drastic differences.
-Consider the following example:
+다른 경우에는, XLA의 최적화가 훨씬 더 극적인 차이를 초래할 수도 있습니다.
+다음 예를 고려해봅시다:
 
 >>> def f(x):
 ...   return jnp.log(jnp.exp(x))
@@ -91,56 +86,45 @@ inf
 >>> print(jit(f)(x))
 100.0
 
-In non-JIT-compiled op-by-op mode, the result is ``inf`` because ``jnp.exp(x)``
-overflows and returns ``inf``. Under JIT, however, XLA recognizes that ``log`` is
-the inverse of ``exp``, and removes the operations from the compiled function,
-simply returning the input. In this case, JIT compilation produces a more accurate
-floating point approximation of the real result.
+JIT이 적용되지 않은 op-by-op 모드에서는 결과가 inf인데, 이는 ``jnp.exp(x)`` 가 오버플로우되어 ``inf`` 를 반환하기 때문입니다.
+하지만 JIT 아래에서, XLA는 ``log`` 가 ``exp`` 의 역함수임을 인식하고 컴파일된 함수에서 해당 연산을 제거하여 단순히 입력을 반환합니다.
+이 경우, JIT 컴파일은 실제 결과의 더 정확한 부동 소수점 근사값을 생성합니다.
 
-Unfortunately the full list of XLA's algebraic simplifications is not well
-documented, but if you're familiar with C++ and curious about what types of
-optimizations the XLA compiler makes, you can see them in the source code:
+불행히도 XLA의 대수적 단순화 전체 목록은 잘 문서화되어 있지 않지만,
+C++에 익숙하고 XLA 컴파일러가 어떤 종류의 최적화를 하는지 궁금하다면, 소스 코드에서 이를 볼 수 있습니다: 
 `algebraic_simplifier.cc`_.
 
 .. _faq-slow-compile:
 
-``jit`` decorated function is very slow to compile
---------------------------------------------------
+``jit`` 으로 데코레이트된 함수는 컴파일하는데 매우 느립니다.
+--------------------------------------------------------------
 
-If your ``jit`` decorated function takes tens of seconds (or more!) to run the
-first time you call it, but executes quickly when called again, JAX is taking a
-long time to trace or compile your code.
+만약 ``jit`` 으로 데코레이트된 함수가 처음 호출될 때 수십 초(혹은 그 이상!) 걸리지만,
+다시 호출될 때는 빠르게 실행된다면, JAX가 코드를 추적하거나 컴파일하는데 오랜 시간이 걸리고 있는 것입니다.
 
-This is usually a sign that calling your function generates a large amount of
-code in JAX's internal representation, typically because it makes heavy use of
-Python control flow such as ``for`` loops. For a handful of loop iterations,
-Python is OK, but if you need *many* loop iterations, you should rewrite your
-code to make use of JAX's
-`structured control flow primitives <https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#Structured-control-flow-primitives>`_
-(such as :func:`lax.scan`) or avoid wrapping the loop with ``jit`` (you can
-still use ``jit`` decorated functions *inside* the loop).
+이는 보통 함수 호출이 JAX의 내부 표현에서 대량의 코드를 생성한다는 신호인데,
+이는 주로 ``for`` 루프와 같은 파이썬 제어 흐름을 많이 사용하기 때문입니다.
+소수의 반복에 대해 파이썬은 괜찮지만,
+*많은* 반복이 필요하다면 코드를 재작성하여
+`JAX의 구조화된 제어 흐름 기본 요소 <https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#Structured-control-flow-primitives>`_ (예: :func:`lax.scan`)를 사용하거나,
+루프를 ``jit`` 으로 래핑하지 않는 것이 좋습니다(루프 *내부* 에서 ``jit`` 데코레이트된 함수는 여전히 사용 가능합니다).
 
-If you're not sure if this is the problem, you can try running
-:func:`jax.make_jaxpr` on your function. You can expect slow compilation if the
-output is many hundreds or thousands of lines long.
+이 문제가 확실하지 않다면, 함수에 대해 :func:`jax.make_jaxpr` 를 실행해 보는 것이 좋습니다.
+출력이 수백 또는 수천 줄에 달한다면 컴파일이 느릴 것으로 예상할 수 있습니다.
 
-Sometimes it isn't obvious how to rewrite your code to avoid Python loops
-because your code makes use of many arrays with different shapes. The
-recommended solution in this case is to make use of functions like
-:func:`jax.numpy.where` to do your computation on padded arrays with fixed
-shape.
+코드를 파이썬 루프를 피하도록 재작성하는 방법이 명확하지 않은 경우가 있는데, 이는 코드가 다양한 모양의 많은 배열을 사용하기 때문일 수 있습니다.
+이 경우 추천되는 해결책은 :func:`jax.numpy.where` 와 같은 함수를 사용하여 고정된 형태의 패딩된 배열에서 계산을 수행하는 것입니다.
 
-If your functions are slow to compile for another reason, please open an issue
-on GitHub.
+만약 당신의 함수가 다른 이유로 인해 컴파일하는데 느리다면, Github 이슈를 생성해주세요.
 
 .. _faq-jit-class-methods:
 
-How to use ``jit`` with methods?
---------------------------------
-Most examples of :func:`jax.jit` concern decorating stand-alone Python functions,
-but decorating a method within a class introduces some complication. For example,
-consider the following simple class, where we've used a standard :func:`~jax.jit`
-annotation on a method::
+``jit`` 를 메소드와 함께 사용하는 방법은?
+---------------------------------------------------
+:func:`jax.jit` 대부분의 예시는 독립적인 파이썬 함수를 데코레이트하는 것과 관련이 있지만,
+클래스 내의 메소드를 데코레이트하는 것은 약간의 복잡성을 도입합니다.
+예를 들어, 다음과 같은 간단한 클래스를 고려해봅시다.
+여기서 우리는 표준 :func:`~jax.jit` 주석을 메소드에 사용했습니다::
 
     >>> import jax.numpy as jnp
     >>> from jax import jit
@@ -156,7 +140,7 @@ annotation on a method::
     ...       return self.x * y
     ...     return y
 
-However, this approach will result in an error when you attempt to call this method::
+그러나, 이 방법을 사용하여 이 메소드를 호출하려고 하면 오류가 발생합니다::
 
     >>> c = CustomClass(2, True)
     >>> c.calc(3)  # doctest: +SKIP
@@ -165,15 +149,12 @@ However, this approach will result in an error when you attempt to call this met
       File "<stdin>", line 1, in <module
     TypeError: Argument '<CustomClass object at 0x7f7dd4125890>' of type <class 'CustomClass'> is not a valid JAX type.
 
-The problem is that the first argument to the function is ``self``, which has type
-``CustomClass``, and JAX does not know how to handle this type.
-There are three basic strategies we might use in this case, and we'll discuss
-them below.
+문제는 함수의 첫 번째 인수가 ``self`` 이며, 그 타입이 ``CustomClass`` 인데, JAX가 이 타입을 처리하는 방법을 모른다는 것입니다.
+이 경우 우리가 사용할 수 있는 세 가지 기본 전략이 있으며, 이에 대해 아래에서 논의할 것입니다.
 
-Strategy 1: JIT-compiled helper function
+전략 1: JIT-컴파일된 도우미 함수
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The most straightforward approach is to create a helper function external to the class
-that can be JIT-decorated in the normal way. For example::
+가장 간단한 접근법은 클래스 외부에 도우미 함수를 생성하고, 이를 보통 방식대로 JIT-데코레이트하는 것입니다. 예를 들어::
 
     >>> from functools import partial
     
@@ -191,21 +172,20 @@ that can be JIT-decorated in the normal way. For example::
     ...     return x * y
     ...   return y
 
-The result will work as expected::
+결과는 예상대로 작동할 것이다::
 
     >>> c = CustomClass(2, True)
     >>> print(c.calc(3))
     6
 
-The benefit of such an approach is that it is simple, explicit, and it avoids the need
-to teach JAX how to handle objects of type ``CustomClass``. However, you may wish to
-keep all the method logic in the same place.
+이러한 접근법의 장점은 단순하고 명시적이며, ``CustomClass`` 타입의 객체를 처리하는 방법을 JAX에 가르칠 필요가 없다는 것이다.
+그러나, 모든 메소드 로직을 같은 장소에 유지하고 싶을 수도 있습니다.
 
-Strategy 2: Marking ``self`` as static
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Another common pattern is to use ``static_argnums`` to mark the ``self`` argument as static.
-But this must be done with care to avoid unexpected results.
-You may be tempted to simply do this::
+전략 2: ``self`` 를 static으로 표시하기
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+또 다른 일반적인 방법은 ``self`` 인자를 static으로 표시하기 위해 ``static_argnums`` 를 사용하는 것입니다.
+그러나 이는 예상치 못한 결과를 피하기 위해 주의해서 수행되어야 합니다.
+다음과 같이 단순히 이 작업을 수행하고 싶을 수 있습니다::
 
     >>> class CustomClass:
     ...   def __init__(self, x: jnp.ndarray, mul: bool):
@@ -219,27 +199,24 @@ You may be tempted to simply do this::
     ...       return self.x * y
     ...     return y
 
-If you call the method, it will no longer raise an error::
+메소드를 호출하면 더 이상 오류가 발생하지 않습니다::
 
     >>> c = CustomClass(2, True)
     >>> print(c.calc(3))
     6
 
-However, there is a catch: if you mutate the object after the first method call, the
-subsequent method call may return an incorrect result::
+그러나 한 가지 문제가 있습니다: 첫 번째 메소드 호출 후 객체를 변형시키면,
+다음 메소드 호출이 잘못된 결과를 반환할 수 있습니다::
 
     >>> c.mul = False
     >>> print(c.calc(3))  # Should print 3
     6
 
-Why is this? When you mark an object as static, it will effectively be used as a dictionary
-key in JIT's internal compilation cache, meaning its hash (i.e. ``hash(obj)``) equality
-(i.e. ``obj1 == obj2``) and object identity (i.e. ``obj1 is obj2``) will be assumed to have
-consistent behavior. The default ``__hash__`` for a custom object is its object ID, and so
-JAX has no way of knowing that a mutated object should trigger a re-compilation.
+이유는 무엇일까요? 객체를 static으로 표시하면, 이는 JIT의 내부 컴파일 캐시에서 사전 키로 사용될 것이며,
+이는 해당 객체의 해시(즉, ``hash(obj)``) 동등성(즉, ``obj1 == obj2``) 및 객체 식별성(즉, ``obj1 is obj2``)이 일관된 행동을 할 것으로 가정합니다.
+사용자 정의 객체의 기본 ``__hash__`` 는 그 객체 ID이므로, JAX는 변형된 객체가 재컴파일을 트리거해야 한다는 것을 알 방법이 없습니다.
 
-You can partially address this by defining an appropriate ``__hash__`` and ``__eq__`` methods
-for your object; for example::
+이 문제는 적절한 ``__hash__`` 및 ``__eq__`` 메서드를 정의함으로써 부분적으로 해결할 수 있습니다; 예를 들면::
 
     >>> class CustomClass:
     ...   def __init__(self, x: jnp.ndarray, mul: bool):
@@ -259,24 +236,21 @@ for your object; for example::
     ...     return (isinstance(other, CustomClass) and
     ...             (self.x, self.mul) == (other.x, other.mul))
 
-(see the :meth:`object.__hash__` documentation for more discussion of the requirements
-when overriding ``__hash__``).
+(``__hash__`` 를 오버라이딩할 때의 요구 사항에 대한 더 많은 토론을 위해 :meth:`object.__hash__` 문서를 참조하세요).
 
-This should work correctly with JIT and other transforms **so long as you never mutate
-your object**. Mutations of objects used as hash keys lead to several subtle problems,
-which is why for example mutable Python containers (e.g. :class:`dict`, :class:`list`)
-don't define ``__hash__``, while their immutable counterparts (e.g. :class:`tuple`) do.
+이는 객체를 **절대 변형시키지 않는 한** JIT 및 기타 변형과 올바르게 작동해야 합니다.
+해시 키로 사용되는 객체의 변형은 여러 가지 미묘한 문제를 일으키며,
+예를 들어 가변 파이썬 컨테이너(예: :class:`dict`, :class:`list`)는 ``__hash__`` 를 정의하지 않는 반면,
+그들의 불변 대응물(예: :class:`tuple`)은 합니다.
 
-If your class relies on in-place mutations (such as setting ``self.attr = ...`` within its
-methods), then your object is not really "static" and marking it as such may lead to problems.
-Fortunately, there's another option for this case.
+클래스가 내부 변형(예: 메소드 내에서 ``self.attr = ...`` 설정)에 의존하는 경우,
+그 객체는 실제로 "static"이 아니며 이를 그렇게 표시하는 것은 문제를 일으킬 수 있습니다.
+다행히, 이 경우에는 다른 옵션이 있습니다.
 
-Strategy 3: Making ``CustomClass`` a PyTree
+전략 3: ``CustomClass`` 를 PyTree로 만들기
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The most flexible approach to correctly JIT-compiling a class method is to register the
-type as a custom PyTree object; see :ref:`extending-pytrees`. This lets you specify
-exactly which components of the class should be treated as static and which should be
-treated as dynamic. Here's how it might look::
+클래스 메서드를 올바르게 JIT 컴파일하는 가장 유연한 접근 방법은 해당 타입을 사용자 정의 PyTree 객체로 등록하는 것입니다; :ref:`extending-pytrees` 를 참조하세요.
+이를 통해 클래스의 어떤 구성 요소를 정적으로 처리해야 하고 어떤 것을 동적으로 처리해야 하는지 정확히 지정할 수 있습니다. 다음은 그 예시입니다::
 
     >>> class CustomClass:
     ...   def __init__(self, x: jnp.ndarray, mul: bool):
@@ -303,8 +277,7 @@ treated as dynamic. Here's how it might look::
     ...                                CustomClass._tree_flatten,
     ...                                CustomClass._tree_unflatten)
 
-This is certainly more involved, but it solves all the issues associated with the simpler
-approaches used above::
+이 방법은 확실히 더 복잡하지만, 위에서 사용된 더 간단한 접근 방법과 관련된 모든 문제를 해결합니다::
 
     >>> c = CustomClass(2, True)
     >>> print(c.calc(3))
@@ -318,40 +291,33 @@ approaches used above::
     >>> print(c.calc(3))
     6
 
-So long as your ``tree_flatten`` and ``tree_unflatten`` functions correctly handle all
-relevant attributes in the class, you should be able to use objects of this type directly
-as arguments to JIT-compiled functions, without any special annotations.
+당신의 ``tree_flatten`` 및 ``tree_unflatten`` 함수가 클래스의 모든 관련 속성을 올바르게 처리한다면,
+특별한 주석 없이도 이 타입의 객체를 JIT 컴파일된 함수의 인수로 직접 사용할 수 있어야 합니다.
 
 .. _faq-data-placement:
 
-Controlling data and computation placement on devices
+장치에서 데이터 및 계산 배치 제어하기
 -----------------------------------------------------
 
-Let's first look at the principles of data and computation placement in JAX.
+먼저 JAX에서 데이터 및 계산 배치의 원리를 살펴보겠습니다.
 
-In JAX, the computation follows data placement. JAX arrays
-have two placement properties: 1) the device where the data resides;
-and 2) whether it is **committed** to the device or not (the data is sometimes
-referred to as being *sticky* to the device).
+JAX에서 계산은 데이터 배치를 따릅니다. JAX 배열에는 두 가지 배치 속성이 있습니다:
+1) 데이터가 저장되는 장치; 그리고 2) 데이터가 해당 장치에 **고정** 되었는지 여부(데이터가 때때로 장치에 *sticky* 되어 있다고 언급됩니다).
 
-By default, JAX arrays are placed uncommitted on the default device
-(``jax.devices()[0]``), which is the first GPU or TPU by default. If no GPU or
-TPU is present, ``jax.devices()[0]`` is the CPU. The default device can
-temporarily overridden with the :func:`jax.default_device` context manager, or
-set for the whole process by setting the environment variable ``JAX_PLATFORMS``
-or the absl flag ``--jax_platforms`` to "cpu", "gpu", or "tpu"
-(``JAX_PLATFORMS`` can also be a list of platforms, which determines which
-platforms are available in priority order).
+기본적으로, JAX 배열은 기본 장치(``jax.devices()[0]``)에 고정되지 않은 상태로 배치됩니다.
+기본적으로 첫 번째 GPU 또는 TPU입니다. GPU 또는 TPU가 없는 경우, ``jax.devices()[0]`` 은 CPU입니다.
+기본 장치는 :func:`jax.default_device` 컨텍스트 관리자를 사용하여 일시적으로 덮어쓸 수 있거나,
+환경 변수 ``JAX_PLATFORMS`` 또는 absl 플래그 ``--jax_platforms`` 를 "cpu", "gpu", 또는 "tpu"로 설정함으로써
+전체 프로세스에 대해 설정할 수 있습니다(``JAX_PLATFORMS`` 은 플랫폼 목록일 수도 있으며, 이는 우선 순위 순서대로 사용 가능한 플랫폼을 결정합니다).
 
 >>> from jax import numpy as jnp
 >>> print(jnp.ones(3).devices())  # doctest: +SKIP
 {CudaDevice(id=0)}
 
-Computations involving uncommitted data are performed on the default
-device and the results are uncommitted on the default device.
+고정되지 않은 데이터를 포함하는 계산은 기본 장치에서 수행되며 결과는 기본 장치에 고정되지 않은 상태로 남습니다.
 
-Data can also be placed explicitly on a device using :func:`jax.device_put`
-with a ``device`` parameter, in which case the data becomes **committed** to the device:
+:func:`jax.device_put` 을 ``device`` 매개변수와 함께 사용하여 데이터를 명시적으로 장치에 배치할 수도 있습니다.
+이 경우 데이터는 해당 장치에 **고정** 됩니다:
 
 >>> import jax
 >>> from jax import device_put
@@ -359,67 +325,49 @@ with a ``device`` parameter, in which case the data becomes **committed** to the
 >>> print(arr.devices())  # doctest: +SKIP
 {CudaDevice(id=2)}
 
-Computations involving some committed inputs will happen on the
-committed device and the result will be committed on the
-same device. Invoking an operation on arguments that are committed
-to more than one device will raise an error.
+일부 고정 입력을 포함하는 계산은 고정 장치에서 발생하며 결과는 같은 장치에 고정됩니다.
+한 개 이상의 장치에 고정된 인수에 대해 작업을 호출하면 오류가 발생합니다.
 
-You can also use :func:`jax.device_put` without a ``device`` parameter. If the data
-is already on a device (committed or not), it's left as-is. If the data isn't on any
-device—that is, it's a regular Python or NumPy value—it's placed uncommitted on the default
-device.
+``device`` 매개변수 없이 :func:`jax.device_put` 을 사용할 수도 있습니다.
+데이터가 이미 장치에 있으면(고정되었든 아니든) 그대로 유지됩니다.
+데이터가 어떤 장치에도 없는 경우, 즉, 일반 Python 또는 NumPy 값인 경우 기본 장치에 고정되지 않은 상태로 배치됩니다.
 
-Jitted functions behave like any other primitive operations—they will follow the
-data and will show errors if invoked on data committed on more than one device.
+JIT된 함수는 다른 원시 연산처럼 동작합니다. 데이터를 따르며,
+한 개 이상의 장치에 고정된 데이터에 대해 호출될 경우 오류를 표시합니다.
 
-(Before `PR #6002 <https://github.com/google/jax/pull/6002>`_ in March 2021
-there was some laziness in creation of array constants, so that
-``jax.device_put(jnp.zeros(...), jax.devices()[1])`` or similar would actually
-create the array of zeros on ``jax.devices()[1]``, instead of creating the
-array on the default device then moving it. But this optimization was removed
-so as to simplify the implementation.)
+(2021년 3월 `PR #6002 <https://github.com/google/jax/pull/6002>`_ 이전에는
+``jax.device_put(jnp.zeros(...), jax.devices()[1])`` 와 같은 경우 실제로
+``jax.devices()[1]`` 에 0의 배열을 생성하는 대신 기본 장치에서 배열을 생성한 다음 이동하는
+일부 지연 생성이 있었습니다. 하지만 이 최적화는 구현을 단순화하기 위해 제거되었습니다.)
 
-(As of April 2020, :func:`jax.jit` has a `device` parameter that affects the device
-placement. That parameter is experimental, is likely to be removed or changed,
-and its use is not recommended.)
+(2020년 4월 현재, :func:`jax.jit` 은 장치 배치에 영향을 미치는 `device` 매개변수를 가지고 있습니다.
+그 매개변수는 실험적이며 제거되거나 변경될 가능성이 높으며, 사용하는 것은 권장되지 않습니다.)
 
-For a worked-out example, we recommend reading through
-``test_computation_follows_data`` in
-`multi_device_test.py <https://github.com/google/jax/blob/main/tests/multi_device_test.py>`_.
+실제 예를 통해 알아보고 싶다면,
+`multi_device_test.py <https://github.com/google/jax/blob/main/tests/multi_device_test.py>`_ 의 ``test_computation_follows_data`` 를 읽어보는 것을 추천합니다.
 
 .. _faq-benchmark:
 
-Benchmarking JAX code
+JAX 코드 벤치마킹
 ---------------------
 
-You just ported a tricky function from NumPy/SciPy to JAX. Did that actually
-speed things up?
+당신은 방금 NumPy/SciPy에서 JAX로 복잡한 함수를 이식했습니다. 이 작업이 실제로 속도를 높였을까요?
 
-Keep in mind these important differences from NumPy when measuring the
-speed of code using JAX:
+JAX를 사용하여 코드의 속도를 측정할 때 NumPy와의 다음과 같은 중요한 차이점을 염두하세요:
 
-1. **JAX code is Just-In-Time (JIT) compiled.** Most code written in JAX can be
-   written in such a way that it supports JIT compilation, which can make it run
-   *much faster* (see `To JIT or not to JIT`_). To get maximum performance from
-   JAX, you should apply :func:`jax.jit` on your outer-most function calls.
+1. **JAX 코드는 Just-In-Time (JIT)으로 컴파일** 됩니다.
+   JAX로 작성된 대부분의 코드는 JIT 컴파일을 지원하는 방식으로 작성될 수 있으며, 이는 코드를 훨씬 *더 빠르게* 실행할 수 있게 합니다(`To JIT or not to JIT`_ 참조).
+   JAX에서 최대 성능을 얻으려면, 가장 바깥쪽 함수 호출에 :func:`jax.jit` 를 적용해야 합니다.
+   JAX 코드를 처음 실행할 때는 컴파일되기 때문에 느릴 것임을 명심하세요.
+   이는 자신의 코드에서 ``jit`` 를 사용하지 않더라도 마찬가지입니다. 왜냐하면 JAX의 내장 함수도 JIT 컴파일되기 때문입니다.
+2. **JAX는 비동기 디스패치를 가집니다**. 이는 계산이 실제로 일어났는지를 보장하기 위해 ``.block_until_ready()`` 를 호출해야 함을 의미합니다(:ref:`async-dispatch` 참조).
+3. **JAX는 기본적으로 32비트 데이터 타입만을 사용** 합니다.
+   공정한 비교를 위해 NumPy에서 명시적으로 32비트 데이터 타입을 사용하거나 JAX에서 64비트 데이터 타입을 활성화할 수 있습니다(`Double (64 bit) precision`_ 참조).
+4. **CPU와 가속기 사이의 데이터 전송에는 시간이 걸립니다**.
+   함수를 평가하는 데 걸리는 시간만을 측정하고 싶다면, 먼저 데이터를 실행하고자 하는 장치로 전송해야 할 수도 있습니다(:ref:`faq-data-placement` 참조).
 
-   Keep in mind that the first time you run JAX code, it will be slower because
-   it is being compiled. This is true even if you don't use ``jit`` in your own
-   code, because JAX's builtin functions are also JIT compiled.
-2. **JAX has asynchronous dispatch.** This means that you need to call
-   ``.block_until_ready()`` to ensure that computation has actually happened
-   (see :ref:`async-dispatch`).
-3. **JAX by default only uses 32-bit dtypes.** You may want to either explicitly
-   use 32-bit dtypes in NumPy or enable 64-bit dtypes in JAX (see
-   `Double (64 bit) precision`_) for a fair comparison.
-4. **Transferring data between CPUs and accelerators takes time.** If you only
-   want to measure the how long it takes to evaluate a function, you may want to
-   transfer data to the device on which you want to run it first (see
-   :ref:`faq-data-placement`).
-
-Here's an example of how to put together all these tricks into a microbenchmark
-for comparing JAX versus NumPy, making using of IPython's convenient
-`%time and %timeit magics`_::
+JAX 대 NumPy를 비교하기 위한 마이크로벤치마크를 모든 이러한 요령을 적용하여 구성하는 예시는 다음과 같습니다.
+IPython의 편리한 `%time and %timeit magics`_ 을 사용합니다::
 
     import numpy as np
     import jax.numpy as jnp
@@ -436,23 +384,19 @@ for comparing JAX versus NumPy, making using of IPython's convenient
     %time f_jit(x_jax).block_until_ready()  # measure JAX compilation time
     %timeit f_jit(x_jax).block_until_ready()  # measure JAX runtime
 
-When run with a GPU in Colab_, we see:
+Colab_\ 에서 GPU와 함께 실행했을 때, 확인할 수 있습니다:
 
-- NumPy takes 16.2 ms per evaluation on the CPU
-- JAX takes 1.26 ms to copy the NumPy arrays onto the GPU
-- JAX takes 193 ms to compile the function
-- JAX takes 485 µs per evaluation on the GPU
+- NumPy는 CPU에서 평가당 16.2 ms가 걸립니다
+- JAX는 NumPy 배열을 GPU로 복사하는 데 1.26 ms가 걸립니다
+- JAX는 함수를 컴파일하는 데 193 ms가 걸립니다
+- JAX는 GPU에서 평가당 485 µs가 걸립니다
 
-In this case, we see that once the data is transferred and the function is
-compiled, JAX on the GPU is about 30x faster for repeated evaluations.
+이 경우, 데이터가 전송되고 함수가 컴파일된 후, JAX는 GPU에서 반복 평가에 대해 약 30배 빠르다는 것을 볼 수 있습니다.
 
-Is this a fair comparison? Maybe. The performance that ultimately matters is for
-running full applications, which inevitably include some amount of both data
-transfer and compilation. Also, we were careful to pick large enough arrays
-(1000x1000) and an intensive enough computation (the ``@`` operator is
-performing matrix-matrix multiplication) to amortize the increased overhead of
-JAX/accelerators vs NumPy/CPU. For example, if we switch this example to use
-10x10 input instead, JAX/GPU runs 10x slower than NumPy/CPU (100 µs vs 10 µs).
+이것이 공정한 비교일까요? 아마도 그렇습니다.
+궁극적으로 중요한 성능은 전체 애플리케이션을 실행할 때의 것이며, 이는 어느 정도 데이터 전송과 컴파일을 포함하게 됩니다.
+또한, 우리는 JAX/가속기 대 NumPy/CPU의 증가된 오버헤드를 상쇄하기에 충분히 큰 배열(1000x1000)과 충분히 집중적인 계산(``@`` 연산자는 행렬-행렬 곱셈을 수행함)을 선택하는 데 주의를 기울였습니다.
+예를 들어, 이 예제를 10x10 입력으로 전환하면, JAX/GPU는 NumPy/CPU보다 10배 느리게 실행됩니다(100 µs 대 10 µs).
 
 .. _To JIT or not to JIT: https://jax.readthedocs.io/en/latest/notebooks/thinking_in_jax.html#to-jit-or-not-to-jit
 .. _Double (64 bit) precision: https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision
@@ -461,46 +405,33 @@ JAX/accelerators vs NumPy/CPU. For example, if we switch this example to use
 
 .. _faq-jax-vs-numpy:
 
-Is JAX faster than NumPy?
+JAX가 NumPy보다 빠른가??
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-One question users frequently attempt to answer with such benchmarks is whether JAX
-is faster than NumPy; due to the difference in the two packages, there is not a
-simple answer.
+사용자들이 종종 벤치마크를 통해 시도해보려는 질문 중 하나는 JAX가 NumPy보다 빠른가 하는 것입니다; 패키지의 차이로 인해 간단한 대답은 없습니다.
 
-Broadly speaking:
+대체적으로:
 
-- NumPy operations are executed eagerly, synchronously, and only on CPU.
-- JAX operations may be executed eagerly or after compilation (if inside :func:`jit`);
-  they are dispatched asynchronously (see :ref:`async-dispatch`); and they can
-  be executed on CPU, GPU, or TPU, each of which have vastly different and continuously
-  evolving performance characteristics.
+- NumPy 연산은 즉시 실행되며, 동기적으로만 처리되고 CPU에서만 실행됩니다.
+- JAX 연산은 즉시 실행되거나 컴파일 후에 실행될 수 있습니다(:func:`jit` 내부에 있을 때);
+  이들은 비동기적으로 디스패치되며(:ref:`async-dispatch` 참조), CPU, GPU, 또는 TPU에서 실행될 수 있으며, 각각은 매우 다른 지속적으로 발전하는 성능 특성을 가집니다.
 
-These architectural differences make meaningful direct benchmark comparisons between
-NumPy and JAX difficult.
+이러한 구조적 차이로 인해 NumPy와 JAX 사이의 직접적인 벤치마크 비교를 의미있게 만들기 어렵습니다.
 
-Additionally, these differences have led to different engineering focus between the
-packages: for example, NumPy has put significant effort into decreasing the per-call
-dispatch overhead for individual array operations, because in NumPy's computational
-model that overhead cannot be avoided.
-JAX, on the other hand, has several ways to avoid dispatch overhead (e.g. JIT
-compilation, asynchronous dispatch, batching transforms, etc.), and so reducing
-per-call overhead has been less of a priority.
+또한, 이러한 차이들은 패키지 사이의 다른 엔지니어링 초점을 이끌어냈습니다: 예를 들어, NumPy는 개별 배열 연산에 대한 호출당 디스패치 오버헤드를 줄이는 데 상당한 노력을 기울였습니다.
+왜냐하면 NumPy의 계산 모델에서는 그 오버헤드를 피할 수 없기 때문입니다. 반면 JAX는 디스패치 오버헤드를 피할 수 있는 여러 방법(JIT 컴파일, 비동기 디스패치, 배치 변환 등)을 가지고 있으므로,
+호출당 오버헤드를 줄이는 것이 덜 우선순위였습니다.
 
-Keeping all that in mind, in summary: if you're doing microbenchmarks of individual
-array operations on CPU, you can generally expect NumPy to outperform JAX due to its
-lower per-operation dispatch overhead. If you're running your code on GPU or TPU,
-or are benchmarking more complicated JIT-compiled sequences of operations on CPU, you
-can generally expect JAX to outperform NumPy.
+이 모든 것을 염두에 두고, 요약하자면: CPU에서 개별 배열 연산의 마이크로벤치마크를 수행하는 경우, NumPy는 호출당 디스패치 오버헤드가 더 낮기 때문에 일반적으로 JAX보다 더 나은 성능을 기대할 수 있습니다.
+GPU나 TPU에서 코드를 실행하거나, CPU에서 더 복잡한 JIT 컴파일된 연산 시퀀스를 벤치마킹하는 경우, 일반적으로 JAX가 NumPy보다 더 나은 성능을 기대할 수 있습니다.
 
 .. _faq-different-kinds-of-jax-values:
 
-Different kinds of JAX values
+JAX 값의 다양한 종류
 -----------------------------
 
-In the process of transforming functions, JAX replaces some function
-arguments with special tracer values.
+함수를 변환하는 과정에서 JAX는 일부 함수 인자들을 특별한 트레이서(tracer) 값으로 대체합니다.
 
-You could see this if you use a ``print`` statement::
+이것은 ``print`` 문을 사용하면 볼 수 있습니다::
 
   def func(x):
     print(x)
@@ -508,103 +439,70 @@ You could see this if you use a ``print`` statement::
 
   res = jax.jit(func)(0.)
 
-The above code does return the correct value ``1.`` but it also prints
-``Traced<ShapedArray(float32[])>`` for the value of ``x``. Normally, JAX
-handles these tracer values internally in a transparent way, e.g.,
-in the numeric JAX primitives that are used to implement the
-``jax.numpy`` functions. This is why ``jnp.cos`` works in the example above.
+위 코드는 정확한 값을 ``1.`` 로 반환하지만,
+``x`` 의 값에 대해 ``Traced<ShapedArray(float32[])>`` 라고 출력합니다.
+일반적으로 JAX는 이러한 트레이서 값들을 내부적으로 투명하게 처리합니다.
+예를 들어, ``jax.numpy`` 함수를 구현하는 데 사용되는 수치적 JAX 원시 연산에서 그렇습니다.
+이것이 위 예제에서 ``jnp.cos`` 가 작동하는 이유입니다.
 
-More precisely, a **tracer** value is introduced for the argument of
-a JAX-transformed function, except the arguments identified by special
-parameters such as ``static_argnums`` for :func:`jax.jit` or
-``static_broadcasted_argnums`` for :func:`jax.pmap`. Typically, computations
-that involve at least a tracer value will produce a tracer value. Besides tracer
-values, there are **regular** Python values: values that are computed outside JAX
-transformations, or arise from above-mentioned static arguments of certain JAX
-transformations, or computed solely from other regular Python values.
-These are the values that are used everywhere in absence of JAX transformations.
+더 정확히 말하자면, **트레이서** 값은 JAX 변환된 함수의 인자에 대해 도입됩니다.
+단, :func:`jax.jit` 의 ``static_argnums`` 나 :func:`jax.pmap` 의 ``static_broadcasted_argnums`` 와 같은 특별한 매개변수로 식별된 인자들을 제외합니다.
+일반적으로 적어도 하나의 트레이서 값을 포함하는 계산은 트레이서 값을 생성합니다.
+트레이서 값 외에도 **일반** 파이썬 값이 있습니다. 즉, JAX 변환 외부에서 계산되거나, 특정 JAX 변환의 앞서 언급한 정적 인자로부터 발생하거나,
+오로지 다른 일반 파이썬 값들로부터만 계산된 값들입니다. JAX 변환의 부재에서는 어디에서나 사용되는 값들입니다.
 
-A tracer value carries an **abstract** value, e.g., ``ShapedArray`` with information
-about the shape and dtype of an array. We will refer here to such tracers as
-**abstract tracers**. Some tracers, e.g., those that are
-introduced for arguments of autodiff transformations, carry ``ConcreteArray``
-abstract values that actually include the regular array data, and are used,
-e.g., for resolving conditionals. We will refer here to such tracers
-as **concrete tracers**. Tracer values computed from these concrete tracers,
-perhaps in combination with regular values, result in concrete tracers.
-A **concrete value** is either a regular value or a concrete tracer.
+트레이서 값은 배열의 형태와 dtype에 대한 정보를 포함하는 **추상적** 값, 예를 들어, ``ShapedArray`` 를 운반합니다.
+이런 트레이서들을 **추상 트레이서** 라고 합니다. 일부 트레이서들,
+예를 들어, 자동 미분 변환의 인자들에 대해 도입된 것들은 실제 배열 데이터를 포함하는 ``ConcreteArray`` 추상 값들을 운반하며
+예를 들어, 조건문을 해결하는 데 사용됩니다.
+이런 트레이서들을 **구체적 트레이서** 라고 합니다. 이러한 구체적 트레이서로부터 계산된 트레이서 값들은 정규 값들과 결합할 수 있습니다.
+**구체적 값** 은 일반 값이거나 구체적 트레이서입니다.
 
-Most often values computed from tracer values are themselves tracer values.
-There are very few exceptions, when a computation can be entirely done
-using the abstract value carried by a tracer, in which case the result
-can be a regular value. For example, getting the shape of a tracer
-with ``ShapedArray`` abstract value. Another example is when explicitly
-casting a concrete tracer value to a regular type, e.g., ``int(x)`` or
-``x.astype(float)``.
-Another such situation is for ``bool(x)``, which produces a Python bool when
-concreteness makes it possible. That case is especially salient because
-of how often it arises in control flow.
+대부분의 경우 트레이서 값에서 계산된 값들은 자체적으로 트레이서 값입니다.
+완전히 추상 값에 의해 계산될 수 있는 몇 안 되는 예외가 있습니다.
+이 경우 결과는 일반 값일 수 있습니다. 예를 들어, ``ShapedArray`` 추상 값이 있는 트레이서의 형태를 얻는 것입니다.
+또 다른 예는 구체적 트레이서 값을 명시적으로 일반 유형으로 캐스팅할 때입니다. 예를 들어, ``int(x)`` 또는 ``x.astype(float)`` 입니다.
+``bool(x)`` 의 경우도 마찬가지이며, 구체성이 가능할 때 파이썬 bool을 생성합니다. 이 경우는 제어 흐름에서 자주 발생하기 때문에 특히 중요합니다.
 
-Here is how the transformations introduce abstract or concrete tracers:
+변환들이 추상 또는 구체적 트레이서를 어떻게 도입하는지:
 
-* :func:`jax.jit`: introduces **abstract tracers** for all positional arguments
-  except those denoted by ``static_argnums``, which remain regular
-  values.
-* :func:`jax.pmap`: introduces **abstract tracers** for all positional arguments
-  except those denoted by ``static_broadcasted_argnums``.
-* :func:`jax.vmap`, :func:`jax.make_jaxpr`, :func:`xla_computation`:
-  introduce **abstract tracers** for all positional arguments.
-* :func:`jax.jvp` and :func:`jax.grad` introduce **concrete tracers**
-  for all positional arguments. An exception is when these transformations
-  are within an outer transformation and the actual arguments are
-  themselves abstract tracers; in that case, the tracers introduced
-  by the autodiff transformations are also abstract tracers.
-* All higher-order control-flow primitives (:func:`lax.cond`, :func:`lax.while_loop`,
-  :func:`lax.fori_loop`, :func:`lax.scan`) when they process the functionals
-  introduce **abstract tracers**, whether or not there is a JAX transformation
-  in progress.
+* :func:`jax.jit``: ``static_argnums`` 로 지정된 것을 제외한 모든 위치 인자에 대해 **추상적 트레이서** 를 도입합니다. 이들은 정규 값으로 남아 있습니다.
+* :func:`jax.pmap``: ``static_broadcasted_argnums`` 로 지정된 것을 제외한 모든 위치 인자에 대해 **추상적 트레이서** 를 도입합니다.
+* :func:`jax.vmap`, :func:`jax.make_jaxpr`, :func:`xla_computation`: 모든 위치 인자에 대해 **추상적 트레이서** 를 도입합니다.
+* :func:`jax.jvp` 와 :func:`jax.grad` 는 모든 위치 인자에 대해 **구체적 트레이서** 를 도입합니다.
+  예외는 이러한 변환이 외부 변환 내에 있고 실제 인자들이 자체적으로 추상적 트레이서인 경우입니다. 이 경우, 자동 미분 변환에 의해 도입된 트레이서들도 추상 트레이서입니다.
+* 모든 고차 제어 흐름 원시 연산(:func:`lax.cond`, :func:`lax.while_loop`, :func:`lax.fori_loop`, :func:`lax.scan`)은 함수적을 처리할 때 JAX 변환이 진행 중이든 아니든 추상 트레이서를 도입합니다.
 
-All of this is relevant when you have code that can operate
-only on regular Python values, such as code that has conditional
-control-flow based on data::
+이 모든 것은 데이터를 기반으로 조건부 제어 흐름을 가지는 코드,
+즉 오직 정규 파이썬 값으로만 작동할 수 있는 코드에 관련됩니다::
 
     def divide(x, y):
       return x / y if y >= 1. else 0.
 
-If we want to apply :func:`jax.jit`, we must ensure to specify ``static_argnums=1``
-to ensure ``y`` stays a regular value. This is due to the boolean expression
-``y >= 1.``, which requires concrete values (regular or tracers). The
-same would happen if we write explicitly ``bool(y >= 1.)``, or ``int(y)``,
-or ``float(y)``.
+:func:`jax.jit`를 적용하려면 ``y``가 정규 값으로 유지되도록 ``static_argnums=1`` 을 명시해야 합니다.
+이는 ``y >= 1.`` 의 부울 표현식이 구체적 값(정규 또는 트레이서)을 요구하기 때문입니다. 명시적으로 ``bool(y >= 1.)``, ``int(y)``, 또는 ``float(y)`` 를 작성하는 경우에도 마찬가지입니다.
 
-Interestingly, ``jax.grad(divide)(3., 2.)``, works because :func:`jax.grad`
-uses concrete tracers, and resolves the conditional using the concrete
-value of ``y``.
+흥미롭게도, ``jax.grad(divide)(3., 2.)`` 는 작동합니다. 왜냐하면 :func:`jax.grad` 는 구체적 트레이서를 사용하고 ``y`` 의 구체적 값을 사용하여 조건을 해결하기 때문입니다.
 
 .. _faq-donation:
 
-Buffer donation
+버퍼 기부
 ---------------
 
-When JAX executes a computation it uses buffers on the device for all inputs and outputs.
-If you know that one of the inputs is not needed after the computation, and if it
-matches the shape and element type of one of the outputs, you can specify that you
-want the corresponding input buffer to be donated to hold an output. This will reduce
-the memory required for the execution by the size of the donated buffer.
+JAX가 계산을 수행할 때 모든 입력과 출력에 대해 장치상의 버퍼를 사용합니다.
+계산 후에 하나의 입력이 더 이상 필요 없고 그것이 출력 중 하나의 형태와 요소 유형과 일치한다면,
+해당 입력 버퍼를 출력을 위해 기부하고자 한다는 것을 지정할 수 있습니다. 이는 기부된 버퍼의 크기만큼 실행에 필요한 메모리를 줄입니다.
 
-If you have something like the following pattern, you can use buffer donation::
+다음과 같은 패턴이 있는 경우, 버퍼 기부를 사용할 수 있습니다::
 
    params, state = jax.pmap(update_fn, donate_argnums=(0, 1))(params, state)
 
-You can think of this as a way to do a memory-efficient functional update
-on your immutable JAX arrays. Within the boundaries of a computation XLA can
-make this optimization for you, but at the jit/pmap boundary you need to
-guarantee to XLA that you will not use the donated input buffer after calling
-the donating function.
+이것은 불변인 JAX 배열에 대한 메모리 효율적인 함수적 업데이트를 수행하는 방법으로 생각할 수 있습니다.
+계산의 경계 내에서 XLA는 이 최적화를 대신 수행할 수 있지만,
+jit/pmap 경계에서는 기부하는 함수를 호출한 후에 기부된 입력 버퍼를 사용하지 않을 것이라고 XLA에게 보장해야 합니다.
 
-You achieve this by using the `donate_argnums` parameter to the functions :func:`jax.jit`,
-:func:`jax.pjit`, and :func:`jax.pmap`. This parameter is a sequence of indices (0 based) into
-the positional argument list::
+이는 ``donate_argnums`` 매개변수를 :func:`jax.jit`, :func:`jax.pjit`, 및 :func:`jax.pmap` 함수에 사용함으로써 달성됩니다.
+이 매개변수는 위치 인수 목록으로 들어가는 인덱스(0 기준)의 시퀀스입니다::
 
    def add(x, y):
      return x + y
@@ -615,13 +513,12 @@ the positional argument list::
    # the same shape and type as `y`, so it will share its buffer.
    z = jax.jit(add, donate_argnums=(1,))(x, y)
 
-Note that this currently does not work when calling your function with key-word arguments!
-The following code will not donate any buffers::
+현재 키워드 인수로 함수를 호출할 때 이 기능이 작동하지 않는다는 점에 유의하세요!
+다음 코드는 어떠한 버퍼도 기부하지 않을 것입니다::
 
    params, state = jax.pmap(update_fn, donate_argnums=(0, 1))(params=params, state=state)
 
-If an argument whose buffer is donated is a pytree, then all the buffers
-for its components are donated::
+버퍼가 기부된 인수가 트리 구조인 경우, 그 구성 요소의 모든 버퍼가 기부됩니다::
 
    def add_ones(xs: List[Array]):
      return [x + 1 for x in xs]
@@ -632,17 +529,15 @@ for its components are donated::
    # so they will share those buffers.
    z = jax.jit(add_ones, donate_argnums=0)(xs)
 
-It is not allowed to donate a buffer that is used subsequently in the computation,
-and JAX will give an error because the buffer for `y` has become invalid
-after it was donated::
+계산에서 이후에 사용되는 버퍼를 기부하는 것은 허용되지 않으며,
+JAX는 `y` 에 대한 버퍼가 기부된 후 유효하지 않게 되었기 때문에 오류를 발생시킬 것입니다::
 
    # Donate the buffer for `y`
    z = jax.jit(add, donate_argnums=(1,))(x, y)
    w = y + 1  # Reuses `y` whose buffer was donated above
    # >> RuntimeError: Invalid argument: CopyToHostAsync() called on invalid buffer
 
-You will get a warning if the donated buffer is not used, e.g., because
-there are more donated buffers than can be used for the outputs::
+기부된 버퍼가 사용되지 않는 경우, 예를 들어 출력에 사용될 수 있는 기부된 버퍼보다 더 많은 경우 경고를 받게 됩니다::
 
    # Execute `add` with donation of the buffers for both `x` and `y`.
    # One of those buffers will be used for the result, but the other will
@@ -650,19 +545,18 @@ there are more donated buffers than can be used for the outputs::
    z = jax.jit(add, donate_argnums=(0, 1))(x, y)
    # >> UserWarning: Some donated buffers were not usable: f32[2,3]{1,0}
 
-The donation may also be unused if there is no output whose shape matches
-the donation::
+기부가 출력의 형태와 일치하지 않는 경우에도 기부가 사용되지 않을 수 있습니다::
 
    y = jax.device_put(np.ones((1, 3)))  # `y` has different shape than the output
    # Execute `add` with donation of the buffer for `y`.
    z = jax.jit(add, donate_argnums=(1,))(x, y)
    # >> UserWarning: Some donated buffers were not usable: f32[1,3]{1,0}
 
-Gradients contain `NaN` where using ``where``
-------------------------------------------------
+기울기에는 ``where`` 를 사용할 때 `NaN` 이 포함될 수 있습니다.
+----------------------------------------------------------------
 
-If you define a function using ``where`` to avoid an undefined value, if you
-are not careful you may obtain a ``NaN`` for reverse differentiation::
+정의되지 않은 값을 피하기 위해 ``where`` 를 사용하여 함수를 정의하는 경우,
+주의를 기울이지 않으면 역방향 미분에 대해 ``NaN`` 을 얻을 수 있습니다::
 
   def my_log(x):
     return jnp.where(x > 0., jnp.log(x), 0.)
@@ -670,11 +564,9 @@ are not careful you may obtain a ``NaN`` for reverse differentiation::
   my_log(0.) ==> 0.  # Ok
   jax.grad(my_log)(0.)  ==> NaN
 
-A short explanation is that during ``grad`` computation the adjoint corresponding
-to the undefined ``jnp.log(x)`` is a ``NaN`` and it gets accumulated to the
-adjoint of the ``jnp.where``. The correct way to write such functions is to ensure
-that there is a ``jnp.where`` *inside* the partially-defined function, to ensure
-that the adjoint is always finite::
+간단히 설명하면, ``grad`` 계산 중에 정의되지 않은 ``jnp.log(x)`` 에 해당하는 수반(adjoint)은 ``NaN`` 이고
+``jnp.where`` 의 수반(adjoint)에 누적됩니다. 이러한 함수를 작성하는 올바른 방법은
+부분적으로 정의된 함수 *내부에* ``jnp.where`` 가 있는지 확인하여 수반(adjoint)이 항상 유한한지 확인하는 것입니다::
 
   def safe_for_grad_log(x):
     return jnp.log(jnp.where(x > 0., x, 1.))
@@ -682,27 +574,25 @@ that the adjoint is always finite::
   safe_for_grad_log(0.) ==> 0.  # Ok
   jax.grad(safe_for_grad_log)(0.)  ==> 0.  # Ok
 
-The inner ``jnp.where`` may be needed in addition to the original one, e.g.::
+원래의 것 외에도 내부 ``jnp.where`` 가 필요할 수 있습니다. 예를 들어::
 
   def my_log_or_y(x, y):
     """Return log(x) if x > 0 or y"""
     return jnp.where(x > 0., jnp.log(jnp.where(x > 0., x, 1.), y)
 
 
-Additional reading:
+추가 읽을 자료:
 
   * `Issue: gradients through jnp.where when one of branches is nan <https://github.com/google/jax/issues/1052#issuecomment-514083352>`_.
   * `How to avoid NaN gradients when using where <https://github.com/tensorflow/probability/blob/master/discussion/where-nan.pdf>`_.
 
 
-Why are gradients zero for functions based on sort order?
----------------------------------------------------------
+입력이 정렬 순서에 따라 다르게 처리되는 함수에 대해 왜 기울기가 0인가?
+-----------------------------------------------------------------------------
 
-If you define a function that processes the input using operations that depend on
-the relative ordering of inputs (e.g. ``max``, ``greater``, ``argsort``, etc.) then
-you may be surprised to find that the gradient is everywhere zero.
-Here is an example, where we define `f(x)` to be a step function that returns
-`0` when `x` is negative, and `1` when `x` is positive::
+입력의 상대적 순서에 의존하는 연산(예: ``max``, ``greater``, ``argsort`` 등)을 사용하여 입력을 처리하는 함수를 정의하면,
+기울기가 어디에서나 0임을 발견하고 놀랄 수 있습니다.
+예를 들어, `x` 가 음수일 때 `0` 을 반환하고, `x` 가 양수일 때 `1` 을 반환하는 단계 함수 `f(x)` 를 정의하는 경우가 있습니다::
 
   import jax
   import numpy as np
@@ -721,38 +611,23 @@ Here is an example, where we define `f(x)` to be a step function that returns
   print(f"df(x) = {df(x)}")
   # df(x) = [0. 0. 0. 0. 0.]
 
-The fact that the gradient is everywhere zero may be confusing at first glance:
-after all, the output does change in response to the input, so how can the gradient
-be zero? However, zero turns out to be the correct result in this case.
+처음 보기에 기울기가 어디에서나 0인 것이 혼란스러울 수 있습니다:
+결국 출력은 입력에 따라 변화하니, 기울기가 어떻게 0일 수 있는가? 그러나, 이 경우 0이 올바른 결과입니다.
 
-Why is this? Remember that what differentiation is measuring the change in ``f``
-given an infinitesimal change in ``x``. For ``x=1.0``, ``f`` returns ``1.0``.
-If we perturb ``x`` to make it slightly larger or smaller, this does not change
-the output, so by definition, :code:`grad(f)(1.0)` should be zero.
-This same logic holds for all values of ``f`` greater than zero: infinitesimally
-perturbing the input does not change the output, so the gradient is zero.
-Similarly, for all values of ``x`` less than zero, the output is zero.
-Perturbing ``x`` does not change this output, so the gradient is zero.
-That leaves us with the tricky case of ``x=0``. Surely, if you perturb ``x`` upward,
-it will change the output, but this is problematic: an infinitesimal change in ``x``
-produces a finite change in the function value, which implies the gradient is
-undefined.
-Fortunately, there's another way for us to measure the gradient in this case: we
-perturb the function downward, in which case the output does not change, and so the
-gradient is zero.
-JAX and other autodiff systems tend to handle discontinuities in this way: if the
-positive gradient and negative gradient disagree, but one is defined and the other is
-not, we use the one that is defined.
-Under this definition of the gradient, mathematically and numerically the gradient of
-this function is everywhere zero.
+왜 그럴까요? 미분이 측정하는 것은 ``x`` 에 대한 무한히 작은 변화에 따른 ``f`` 의 변화량을 측정하는 것을 기억하세요.
+``x=1.0`` 일 때, ``f`` 는 ``1.0`` 을 반환합니다. 우리가 ``x`` 를 약간 더 크거나 작게 만든다면, 이것은 출력을 변경시키지 않으므로, 정의에 따라 :code:`grad(f)(1.0)` 은 0이어야 합니다.
+이 같은 논리는 ``f`` 의 모든 값이 0보다 클 때 모두 적용됩니다: 무한히 작은 입력을 변화시켜도 출력은 변하지 않으므로, 기울기는 0입니다.
+마찬가지로, ``x`` 의 모든 값이 0보다 작을 때, 출력은 0입니다. ``x`` 를 변화시켜도 이 출력은 변하지 않으므로, 기울기는 0입니다.
+이것은 ``x=0`` 인 까다로운 경우에도 보입니다. 분명히, 만약 당신이 ``x`` 를 위로 변화시킨다면,
+출력을 변경시킬 것입니다, 그러나 이것은 문제가 됩니다: ``x`` 에 대한 무한히 작은 변화가 함수 값에 유한한 변화를 일으키는 것을 의미하며, 이는 기울기가 정의되지 않았음을 의미합니다.
+다행히도, 이 경우에 기울기를 측정하는 또 다른 방법이 있습니다: 우리는 함수를 아래로 변화시키는데, 이 경우 출력은 변하지 않으므로 기울기는 0입니다.
+JAX와 다른 자동 미분 시스템들은 이런 방식으로 불연속성을 처리하는 경향이 있습니다: 양의 기울기와 음의 기울기가 일치하지 않지만, 하나는 정의되어 있고 다른 하나는 그렇지 않다면, 우리는 정의된 것을 사용합니다.
+이 기울기의 정의에 따라, 수학적으로나 수치적으로 이 함수의 기울기는 어디에서나 0입니다.
 
-The problem stems from the fact that our function has a discontinuity at ``x = 0``.
-Our ``f`` here is essentially a `Heaviside Step Function`_, and we can use a
-`Sigmoid Function`_ as a smoothed replacement.
-The sigmoid is approximately equal to the heaviside function when `x` is far from zero,
-but replaces the discontinuity at ``x = 0`` with a smooth, differentiable curve.
-As a result of using :func:`jax.nn.sigmoid`, we get a similar computation with
-well-defined gradients::
+문제는 함수가 ``x = 0`` 에서 불연속성을 가지고 있다는 데에서 비롯됩니다.
+여기서 ``f`` 는 본질적으로 `Heaviside Step Function`_ 입니다, 그리고 우리는 `Sigmoid Function`_ 을 매끄러운 대체물로 사용할 수 있습니다.
+시그모이드는 x가 0에서 멀 때 헤비사이드 함수와 대략적으로 동일하지만, ``x = 0`` 에서의 불연속성을 매끄럽고 미분 가능한 곡선으로 대체합니다.
+:func:`jax.nn.sigmoid` 를 사용함으로써, 우리는 잘 정의된 기울기를 가진 유사한 계산을 얻습니다:
 
   def g(x):
     return jax.nn.sigmoid(x)
@@ -768,16 +643,14 @@ well-defined gradients::
     print(f"dg(x) = {dg(x)}")
     # dg(x) = [0.   0.2  0.25 0.2  0.  ]
 
-The :mod:`jax.nn` submodule also has smooth versions of other common rank-based
-functions, for example :func:`jax.nn.softmax` can replace uses of
-:func:`jax.numpy.argmax`, :func:`jax.nn.soft_sign` can replace uses of
-:func:`jax.numpy.sign`, :func:`jax.nn.softplus` or :func:`jax.nn.squareplus`
-can replace uses of :func:`jax.nn.relu`, etc.
+:mod:`jax.nn` 하위 모듈은 또한 다른 일반적인 순위 기반 함수들의 매끄러운 버전을 가지고 있습니다.
+예를 들어 :func:`jax.nn.softmax` 은 :func:`jax.numpy.argmax` 의 사용을 대체할 수 있고,
+:func:`jax.nn.soft_sign` 은 :func:`jax.numpy.sign` 의 사용을 대체할 수 있으며,
+:func:`jax.nn.softplus` 또는 :func:`jax.nn.squareplus` 는 :func:`jax.nn.relu` 의 사용을 대체할 수 있습니다. +@
 
-How can I convert a JAX Tracer to a NumPy array?
-------------------------------------------------
-When inspecting a transformed JAX function at runtime, you'll find that array
-values are replaced by :class:`~jax.core.Tracer` objects::
+JAX Tracer를 NumPy 배열로 어떻게 변환할 수 있나요?
+-----------------------------------------------------------
+런타임에 변환된 JAX 함수를 검사하면, 배열 값들이 :class:`~jax.core.Tracer` 객체로 대체된 것을 확인할 수 있습니다::
 
   @jax.jit
   def f(x):
@@ -786,34 +659,23 @@ values are replaced by :class:`~jax.core.Tracer` objects::
 
   f(jnp.arange(5))
 
-This prints the following::
+이는 다음과 같이 출력됩니다::
 
   <class 'jax.interpreters.partial_eval.DynamicJaxprTracer'>
 
-A frequent question is how such a tracer can be converted back to a normal NumPy
-array. In short, **it is impossible to convert a Tracer to a NumPy array**, because
-a tracer is an abstract representation of *every possible* value with a given shape
-and dtype, while a numpy array is a concrete member of that abstract class.
-For more discussion of how tracers work within the context of JAX transformations,
-see `JIT mechanics`_.
+자주 나오는 질문은 이러한 트레이서를 일반 NumPy 배열로 어떻게 되돌릴 수 있는가입니다.
+간단히 말해서, **Tracer를 NumPy 배열로 변환하는 것은 불가능** 합니다.
+왜냐하면 트레이서는 주어진 형태와 dtype을 가진 모든 가능한 값의 추상적 표현이며, NumPy 배열은 그 추상 클래스의 구체적인 멤버이기 때문입니다.
+JAX 변환 내에서 트레이서가 어떻게 작동하는지에 대한 더 자세한 토론을 원한다면, `JIT mechanics`_ 을 참조하세요.
 
-The question of converting Tracers back to arrays usually comes up within
-the context of another goal, related to accessing intermediate values in a
-computation at runtime. For example:
+Tracer를 배열로 되돌리려는 문제는 일반적으로 런타임에 계산의 중간 값을 접근하는 것과 관련된 다른 목표 내에서 제기됩니다. 예를 들어:
 
-- If you wish to print a traced value at runtime for debugging purposes, you might
-  consider using :func:`jax.debug.print`.
-- If you wish to call non-JAX code within a transformed JAX function, you might
-  consider using :func:`jax.pure_callback`, an example of which is available at
-  `Pure callback example`_.
-- If you wish to input or output array buffers at runtime (for example, load data
-  from file, or log the contents of the array to disk), you might consider using
-  :func:`jax.experimental.io_callback`, an example of which can be found at
-  `IO callback example`_.
+- 런타임에 디버깅 목적으로 추적된 값을 출력하고 싶다면, :func:`jax.debug.print` 를 사용하는 것을 고려해볼 수 있습니다.
+- 변환된 JAX 함수 내에서 비-JAX 코드를 호출하고 싶다면, :func:`jax.pure_callback` 을 사용하는 것을 고려해볼 수 있으며, 이에 대한 예시는 `Pure callback example`_ 에서 확인할 수 있습니다.
+- 런타임에 배열 버퍼를 입력하거나 출력하고 싶다면 (예를 들어, 파일에서 데이터를 로드하거나, 배열의 내용을 디스크에 로깅하고 싶은 경우),
+  :func:`jax.experimental.io_callback` 을 사용하는 것을 고려해볼 수 있으며, 이에 대한 예시는 `IO callback example`_ 에서 찾을 수 있습니다.
 
-For more information on runtime callbacks and examples of their use,
-see `External callbacks in JAX`_.
-
+런타임 콜백 및 그 사용 예시에 대한 자세한 정보를 원한다면, `External callbacks in JAX`_ 을 참조하세요.
 
 .. _JIT mechanics: https://jax.readthedocs.io/en/latest/notebooks/thinking_in_jax.html#jit-mechanics-tracing-and-static-variables
 .. _External callbacks in JAX: https://jax.readthedocs.io/en/latest/notebooks/external_callbacks.html
