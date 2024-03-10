@@ -7,13 +7,13 @@ JAX 자주 묻는 질문 (FAQ)
 .. _JAX - The Sharp Bits: https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html
 
 여기에 자주 묻는 질문들에 대한 답변을 수집하고 있습니다.
-기여든 언제든 환영입니다!
+기여는 언제든 환영입니다!
 
-``jit``은 함수의 동작을 변경합니다
+``jit`` 은 함수의 동작을 변경합니다
 --------------------------------------------
 
 만약 :func:`jax.jit`을 쓰고나서 파이썬 함수의 동작에 변화가 있다면, 아마도 그 함수는 전역 변수를 사용하거나 부수 효과를 가지고 있을 것입니다.
-다음 코드에서, ``impure_func`은 전역 변수 ``y``를 사용하고 ``print``라는 부수 효과를 가지고 있습니다.::
+다음 코드에서, ``impure_func``은 전역 변수 ``y``를 사용하고 ``print``라는 부수 효과를 가지고 있습니다.::
 
     y = 0
 
@@ -25,7 +25,7 @@ JAX 자주 묻는 질문 (FAQ)
     for y in range(3):
       print("Result:", impure_func(y))
 
-``jit``이 없을 때의 출력::
+``jit`` 이 없을 때의 출력::
 
     Inside: 0
     Result: 0
