@@ -106,7 +106,8 @@ C++에 익숙하고 XLA 컴파일러가 어떤 종류의 최적화를 하는지 
 이는 주로 ``for`` 루프와 같은 파이썬 제어 흐름을 많이 사용하기 때문입니다.
 소수의 반복에 대해 파이썬은 괜찮지만,
 *많은* 반복이 필요하다면 코드를 재작성하여
-`JAX의 구조화된 제어 흐름 기본 요소 <https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#Structured-control-flow-primitives>`_ (예: :func:`lax.scan`)를 사용하거나, 루프를 ``jit`` 으로 래핑하지 않는 것이 좋습니다(루프 *내부*에서 ``jit`` 데코레이트된 함수는 여전히 사용 가능합니다).
+`JAX의 구조화된 제어 흐름 기본 요소 <https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#Structured-control-flow-primitives>`_ (예: :func:`lax.scan`)를 사용하거나,
+루프를 ``jit`` 으로 래핑하지 않는 것이 좋습니다(루프 *내부* 에서 ``jit`` 데코레이트된 함수는 여전히 사용 가능합니다).
 
 이 문제가 확실하지 않다면, 함수에 대해 :func:`jax.make_jaxpr` 를 실행해 보는 것이 좋습니다.
 출력이 수백 또는 수천 줄에 달한다면 컴파일이 느릴 것으로 예상할 수 있습니다.
